@@ -10,27 +10,26 @@ namespace Net_Server
     class Program
     {
         static short PORT_NUMBER = 15224;
-        static List<Clients> clients = new List<Clients>();
+        static ServerCore core;
 
         static void Main(string[] args)
         {
-            byte[] buffer = new byte[1024];
+            MainFunctions.ConsoleWrite(" Loading Server..", ConsoleColor.Yellow);
 
-            TcpListener serverSocket = new TcpListener(IPAddress.Any, PORT_NUMBER);
-            TcpClient clientSocket = default(TcpClient);
+            core = new ServerCore();
+            core.initServer(PORT_NUMBER);
+        }
 
-            serverSocket.Start();
-            Console.WriteLine(" Server Started!");
-
-            while (true)
+        public static void updateClientList()
+        {
+            for (int i = 0; i < core.clientList.Count; i++)
             {
-                clientSocket = serverSocket.AcceptTcpClient();
-
-                Console.WriteLine(" Client Connected!");
-
-                Clients client = new Clients();
-                client.startClientThread(clientSocket);
+                if (core.clientList[i].isConnected() == false)
+                {
+                    core.clientList.Remove(core.clientList[i]);
+                }
             }
+            MainFunctions.ConsoleWrite(" New client count: " + core.clientList.Count);
         }
     }
 }

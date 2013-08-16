@@ -11,6 +11,7 @@ namespace Net_Server
     class Clients
     {
         private TcpClient clientSocket;
+        int bytes = 0;
 
         public void startClientThread(TcpClient inClientSocket)
         {
@@ -25,7 +26,6 @@ namespace Net_Server
             byte[] buffer = new byte[1024];
             NetworkStream stream;
 
-            int bytes = 0;
             string clientMessage;
 
             do
@@ -46,7 +46,22 @@ namespace Net_Server
             } while (bytes != 0);
             
             Console.WriteLine(" Client disconected!");
+            Program.updateClientList();
+
             clientSocket.Close();
+        }
+
+        public bool isConnected()
+        {
+            if (clientSocket.Client.Poll(0, SelectMode.SelectRead))
+            {
+                byte[] buff = new byte[1];
+                if (clientSocket.Client.Receive(buff, SocketFlags.Peek) == 0)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
