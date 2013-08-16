@@ -22,6 +22,8 @@ namespace Net_Server
 
         public static void updateClientList()
         {
+            if (core == null) return;
+
             for (int i = 0; i < core.clientList.Count; i++)
             {
                 if (core.clientList[i].isConnected() == false)
@@ -30,6 +32,17 @@ namespace Net_Server
                 }
             }
             MainFunctions.ConsoleWrite(" New client count: " + core.clientList.Count);
+        }
+
+        public static void sendClientData(byte[] buffer, int size, Clients sender)
+        {
+            foreach (Clients client in core.clientList)
+            {
+                if (client != sender)
+                {
+                    client.sendDataToClient(buffer, size, sender);
+                }
+            }
         }
     }
 }

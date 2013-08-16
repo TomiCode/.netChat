@@ -27,7 +27,6 @@ namespace Net_Server
             NetworkStream stream;
 
             string clientMessage;
-
             do
             {
                 stream = clientSocket.GetStream();
@@ -38,8 +37,7 @@ namespace Net_Server
 
                     Console.WriteLine(" Client Message: {0}", clientMessage);
 
-                    stream.Write(buffer, 0, bytes);
-                    stream.Flush();
+                    Program.sendClientData(buffer, bytes, this);
 
                     Console.WriteLine(" Data sended to client!\n  Bytes {0} ", bytes);
                 }
@@ -49,6 +47,21 @@ namespace Net_Server
             Program.updateClientList();
 
             clientSocket.Close();
+        }
+
+        public bool sendDataToClient(byte[] buffer, int size, Clients sender)
+        {
+            if (isConnected() == false) return false;
+
+            if (this != sender)
+            {
+                NetworkStream nStream = clientSocket.GetStream();
+                nStream.Write(buffer, 0, size);
+
+                nStream.Flush();
+            }
+
+            return true;
         }
 
         public bool isConnected()
