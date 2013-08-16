@@ -48,14 +48,5 @@ namespace Net_Server
             Console.WriteLine(" Client disconected!");
             clientSocket.Close();
         }
-
-
-        #region Nothing Here
-        private bool isClientConnected(TcpClient client)
-        {
-
-            return false;
-        }
-        #endregion
     }
 }

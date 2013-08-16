@@ -26,26 +26,10 @@ namespace Net_Server
             {
                 clientSocket = serverSocket.AcceptTcpClient();
 
+                Console.WriteLine(" Client Connected!");
+
                 Clients client = new Clients();
                 client.startClientThread(clientSocket);
-
-                #region Old Echo Code
-                /*
-                NetworkStream stream = clientSocket.GetStream();
-
-                string clientData;
-                int bytesRead = 0;
-
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) != 0)
-                {
-                    clientData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Console.WriteLine(@" Newline: {1}, Received: {0}", clientData, clientData.Contains("\n"));
-
-                    stream.Write(buffer, 0, bytesRead);
-                    stream.Flush();
-                }
-                */
-                #endregion
             }
         }
     }
