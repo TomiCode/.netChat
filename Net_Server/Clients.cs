@@ -25,27 +25,21 @@ namespace Net_Server
         {
             byte[] buffer = new byte[1024];
             NetworkStream stream;
-
-            string clientMessage;
+            
             do
             {
                 stream = clientSocket.GetStream();
 
                 if ((bytes = stream.Read(buffer, 0, buffer.Length)) != 0)
                 {
-                    clientMessage = Encoding.UTF8.GetString(buffer, 0, bytes);
-
-                    Console.WriteLine(" Client Message: {0}", clientMessage);
-
                     Program.sendClientData(buffer, bytes, this);
-
-                    Console.WriteLine(" Data sended to client!\n  Bytes {0} ", bytes);
+                    Console.WriteLine(" Data sended to clients!\n  Bytes {0} ", bytes);
                 }
             } while (bytes != 0);
             
             Console.WriteLine(" Client disconected!");
             Program.updateClientList();
-
+            
             clientSocket.Close();
         }
 
