@@ -10,6 +10,8 @@ namespace Net_Server
     class Program
     {
         static short PORT_NUMBER = 15224;
+        static List<Clients> clients = new List<Clients>();
+
         static void Main(string[] args)
         {
             byte[] buffer = new byte[1024];
@@ -23,6 +25,12 @@ namespace Net_Server
             while (true)
             {
                 clientSocket = serverSocket.AcceptTcpClient();
+
+                Clients client = new Clients();
+                client.startClientThread(clientSocket);
+
+                #region Old Echo Code
+                /*
                 NetworkStream stream = clientSocket.GetStream();
 
                 string clientData;
@@ -36,6 +44,8 @@ namespace Net_Server
                     stream.Write(buffer, 0, bytesRead);
                     stream.Flush();
                 }
+                */
+                #endregion
             }
         }
     }
