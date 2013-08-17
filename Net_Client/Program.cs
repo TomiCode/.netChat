@@ -12,16 +12,11 @@ namespace Net_Client
         static short PORT_NUMBER = 15224;
         static void Main(string[] args)
         {
-            TcpClient client = new TcpClient();
+            Console.WriteLine(" Close this application with the \"!exit\" command!");
 
-            client.Connect(IPAddress.Loopback, PORT_NUMBER);
-            NetworkStream stream  = client.GetStream();
+            MainClient client = new MainClient();
 
-            byte[] buffer;
-            buffer = Encoding.UTF8.GetBytes(Console.ReadLine());
-
-            stream.Write(buffer, 0, buffer.Length);
-            stream.Flush();
+            client.createClient(IPAddress.Loopback, PORT_NUMBER);
         }
     }
 }
