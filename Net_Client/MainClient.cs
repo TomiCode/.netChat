@@ -11,16 +11,19 @@ namespace Net_Client
     class MainClient
     {
         TcpClient mainClient = default(TcpClient);
+        Messages messageClient = default(Messages);
+
+        string[] messageBuffer = new string[16];
 
         public void createClient(IPAddress serverAddress, short portNumber)
         {
             mainClient = new TcpClient();
+            messageClient = new Messages();
 
             mainClient.Connect(serverAddress, portNumber);
             NetworkStream nStream = mainClient.GetStream();
 
-            Thread mThread = new Thread(messageThread);
-            mThread.Start(nStream);
+            messageClient.createMessageThread(nStream);
 
             byte[] buffer;
             string msg;
@@ -36,27 +39,8 @@ namespace Net_Client
                 Console.SetCursorPosition(0, 10);
             }
 
+            messageClient.stopMessageThread();
             mainClient.Close();
-            mThread.Abort();
-        }
-
-        private void messageThread(object obj)
-        {
-            NetworkStream stream = (NetworkStream)obj;
-            int readBytes;
-            
-            byte[] buffer = new byte[1024];
-
-            while (true)
-            {
-                if ((readBytes = stream.Read(buffer, 0, buffer.Length)) != 0)
-                {
-                    Console.SetCursorPosition(0, 2);
-                    Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, readBytes));
-
-                    Console.SetCursorPosition(0, 10);
-                }
-            }
         }
     }
 }
