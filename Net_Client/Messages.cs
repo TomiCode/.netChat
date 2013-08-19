@@ -11,6 +11,7 @@ namespace Net_Client
     class Messages
     {
         protected Thread mThread;
+
         private string[] mBuffer = new string[16];
 
         public void createMessageThread(NetworkStream stream)
@@ -25,6 +26,20 @@ namespace Net_Client
             {
                 mThread.Abort();
             }
+        }
+
+        public void updateConsole()
+        {
+            Console.Clear();
+            Console.SetCursorPosition(0, 4);
+            foreach (string msg in mBuffer)
+            {
+                if (msg != string.Empty)
+                {
+                    Console.WriteLine(msg);
+                }
+            }
+            Program.updateMsg();
         }
 
         private void messageThread(object obj)
@@ -59,6 +74,7 @@ namespace Net_Client
                 }
                 mBuffer[mBuffer.Length - 1] = message;
             }
+            updateConsole();
         }
 
         private int freeSpace()

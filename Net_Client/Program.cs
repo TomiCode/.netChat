@@ -10,13 +10,18 @@ namespace Net_Client
     class Program
     {
         static short PORT_NUMBER = 15224;
+        static MainClient client = new MainClient();
+
         static void Main(string[] args)
         {
             Console.WriteLine(" Close this application with the \"!exit\" command!");
 
-            MainClient client = new MainClient();
-
             client.createClient(IPAddress.Loopback, PORT_NUMBER);
+        }
+
+        public static void updateMsg()
+        {
+            client.updateUsrMsg();
         }
     }
 }

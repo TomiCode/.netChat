@@ -14,6 +14,7 @@ namespace Net_Client
         Messages messageClient = default(Messages);
 
         string[] messageBuffer = new string[16];
+        char[] usrMsg = new char[128];
 
         public void createClient(IPAddress serverAddress, short portNumber)
         {
@@ -26,21 +27,73 @@ namespace Net_Client
             messageClient.createMessageThread(nStream);
 
             byte[] buffer;
-            string msg;
+            char oneChar = new char();
 
-            Console.SetCursorPosition(0, 10);
-            while ((msg = Console.ReadLine()) != "!exit")
+            Console.SetCursorPosition(0, 20);
+            while (true)
             {
-                buffer = Encoding.UTF8.GetBytes(msg);
+                if ((oneChar = (char)Console.Read()) == '\n')
+                {
+                    if (string.Join("", usrMsg) == "!exit") { break; }
+                    buffer = Encoding.UTF8.GetBytes(usrMsg);
 
-                nStream.Write(buffer, 0, buffer.Length);
-                nStream.Flush();
+                    nStream.Write(buffer, 0, getLenght(usrMsg));
+                    nStream.Flush();
 
-                Console.SetCursorPosition(0, 10);
+                    clearCharTable(usrMsg);
+
+                    Console.Clear();
+                    messageClient.updateConsole();
+                }
+                else
+                {
+                    for (int i = 0; i < usrMsg.Length; i++)
+                    {
+                        if (usrMsg[i] == '\0')
+                        {
+                            usrMsg[i] = oneChar;
+                            break;
+                        }
+                    }
+                }
             }
 
             messageClient.stopMessageThread();
             mainClient.Close();
+        }
+
+        private void clearCharTable(char[] table)
+        {
+            for (int i = 0; i < table.Length; i++)
+            {
+                if (table[i] != '\0')
+                {
+                    table[i] = '\0';
+                }
+            }
+        }
+
+        private int getLenght(char[] txt)
+        {
+            for (int i = 0; i < txt.Length; i++)
+            {
+                if (txt[i] == '\0') return i;
+            }
+            return -1;
+        }
+
+        public void updateUsrMsg()
+        {
+           
+            for(int i = 0; i < usrMsg.Length; i++)
+            {
+                if (usrMsg[i] != '\0')
+                {
+                    Console.Write(usrMsg[i]);
+                    Console.SetCursorPosition(i + 1, 20);
+                }
+            }
+            
         }
     }
 }
