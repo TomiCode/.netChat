@@ -11,89 +11,111 @@ namespace Net_Client
     class MainClient
     {
         TcpClient mainClient = default(TcpClient);
-        Messages messageClient = default(Messages);
+        Thread mThread;
 
-        string[] messageBuffer = new string[16];
-        char[] usrMsg = new char[128];
+        string[] mBuffer = new string[18];
+        Encoding encoding = Encoding.GetEncoding("windows-1250");
 
         public void createClient(IPAddress serverAddress, short portNumber)
         {
             mainClient = new TcpClient();
-            messageClient = new Messages();
-
             mainClient.Connect(serverAddress, portNumber);
+
             NetworkStream nStream = mainClient.GetStream();
 
-            messageClient.createMessageThread(nStream);
+            mThread = new Thread(messageThread);
+            mThread.Start(nStream);
 
             byte[] buffer;
-            char oneChar = new char();
+            string message;
 
-            Console.SetCursorPosition(0, 20);
-            while (true)
+            Console.SetCursorPosition(0, 21);
+            while ((message = Console.ReadLine()) != "!exit")
             {
-                if ((oneChar = (char)Console.Read()) == '\n')
-                {
-                    if (string.Join("", usrMsg) == "!exit") { break; }
-                    buffer = Encoding.UTF8.GetBytes(usrMsg);
+                buffer = encoding.GetBytes(message);
 
-                    nStream.Write(buffer, 0, getLenght(usrMsg));
-                    nStream.Flush();
+                nStream.Write(buffer, 0, message.Length);
+                nStream.Flush();
 
-                    clearCharTable(usrMsg);
+                updateMessages(string.Format("me> {0}", message));
+                message = "";
 
-                    Console.Clear();
-                    messageClient.updateConsole();
-                }
-                else
-                {
-                    for (int i = 0; i < usrMsg.Length; i++)
-                    {
-                        if (usrMsg[i] == '\0')
-                        {
-                            usrMsg[i] = oneChar;
-                            break;
-                        }
-                    }
-                }
+                clearConsoleLines(1, 21);
+                Console.SetCursorPosition(0, 21);
             }
 
-            messageClient.stopMessageThread();
+            mThread.Abort();
             mainClient.Close();
         }
 
-        private void clearCharTable(char[] table)
+        private void messageThread(object obj)
         {
-            for (int i = 0; i < table.Length; i++)
+            NetworkStream nStream = (NetworkStream)obj;
+            int readBytes;
+
+            byte[] messageBuffer = new byte[1024];
+
+            while (true)
             {
-                if (table[i] != '\0')
+                if ((readBytes = nStream.Read(messageBuffer, 0, messageBuffer.Length)) != 0)
                 {
-                    table[i] = '\0';
+                    updateMessages(encoding.GetString(messageBuffer, 0, readBytes));
                 }
             }
         }
 
-        private int getLenght(char[] txt)
+        private void updateMessages(string message)
         {
-            for (int i = 0; i < txt.Length; i++)
+            int space;
+            if ((space = freeSpace()) != -1)
             {
-                if (txt[i] == '\0') return i;
+                mBuffer[space] = message;
+            }
+            else
+            {
+                for (int i = 0; i < mBuffer.Length - 1; i++)
+                {
+                    mBuffer[i] = mBuffer[i + 1];
+                }
+                mBuffer[mBuffer.Length - 1] = message;
+            }
+            updateConsole();
+        }
+
+        private void updateConsole()
+        {
+            int cursorLeft = Console.CursorLeft;
+            int cursorTop = Console.CursorTop;
+
+            clearConsoleLines(21, 1);
+            Console.SetCursorPosition(0, 1);
+
+            foreach (string msg in mBuffer)
+            {
+                if (msg != string.Empty)
+                    Console.WriteLine(msg);
+            }
+
+            Console.SetCursorPosition(cursorLeft, cursorTop);
+        }
+
+        private void clearConsoleLines(int lines, int top)
+        {
+            for (int i = top; i < top + lines; i++)
+            {
+                Console.SetCursorPosition(0, i);
+                for (int j = 0; j < Console.WindowWidth; j++)
+                    Console.Write(" ");
+            }
+        }
+
+        private int freeSpace()
+        {
+            for (int i = 0; i < mBuffer.Length; i++)
+            {
+                if (mBuffer[i] == "") return i;
             }
             return -1;
-        }
-
-        public void updateUsrMsg()
-        {
-           
-            for(int i = 0; i < usrMsg.Length; i++)
-            {
-                if (usrMsg[i] != '\0')
-                {
-                    Console.Write(usrMsg[i]);
-                    Console.SetCursorPosition(i + 1, 20);
-                }
-            }
-            
         }
     }
 }

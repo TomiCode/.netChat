@@ -14,14 +14,11 @@ namespace Net_Client
 
         static void Main(string[] args)
         {
+            Console.SetBufferSize(82, 25);
+            Console.SetWindowSize(Console.BufferWidth, Console.BufferHeight);
+
             Console.WriteLine(" Close this application with the \"!exit\" command!");
-
             client.createClient(IPAddress.Loopback, PORT_NUMBER);
-        }
-
-        public static void updateMsg()
-        {
-            client.updateUsrMsg();
         }
     }
 }
