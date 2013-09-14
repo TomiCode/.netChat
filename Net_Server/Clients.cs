@@ -12,10 +12,16 @@ namespace Net_Server
     {
         private TcpClient clientSocket;
         int bytes = 0;
+        public int uID;
+        public string usrName;
 
         public void startClientThread(TcpClient inClientSocket)
         {
             this.clientSocket = inClientSocket;
+            byte[] userID = BitConverter.GetBytes(uID);
+
+            clientSocket.GetStream().Write(userID, 0, userID.Length);
+            clientSocket.GetStream().Flush();
 
             Thread cThread = new Thread(clientThread);
             cThread.Start();
@@ -33,7 +39,7 @@ namespace Net_Server
                 if ((bytes = stream.Read(buffer, 0, buffer.Length)) != 0)
                 {
                     Program.sendClientData(buffer, bytes, this);
-                    Console.WriteLine(" Data sended to clients!\n  Bytes {0} ", bytes);
+                    Console.WriteLine("Client-ID {0} sends some bytes: {1} ", uID, bytes);
                 }
             } while (bytes != 0);
             

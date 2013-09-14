@@ -25,6 +25,15 @@ namespace Net_Server
             mainServerThread();
         }
 
+        private bool idExists(int id)
+        {
+            foreach (var client in clientList)
+            {
+                if (client.uID == id) return true;
+            }
+            return false;
+        }
+
         private void mainServerThread()
         {
             while (true)
@@ -32,11 +41,25 @@ namespace Net_Server
                 clientSocket = serverSocket.AcceptTcpClient();
                 MainFunctions.ConsoleWrite(" Client connected!", ConsoleColor.White);
 
+                byte[] handshake = new byte[512];
+                int bytes = clientSocket.GetStream().Read(handshake, 0, handshake.Length);
+
                 Clients client = new Clients();
+                client.usrName = Encoding.GetEncoding("windows-1250").GetString(handshake, 0, bytes);
+
+                for (int i = 0; i < 128; i++)
+                {
+                    if (idExists(i) == false)
+                    {
+                        client.uID = i;
+                        break;
+                    }
+                }
+
                 client.startClientThread(clientSocket);
 
                 clientList.Add(client);
-                MainFunctions.ConsoleWrite(String.Format(" New Client Count: {0}", clientList.Count));
+                MainFunctions.ConsoleWrite(String.Format(" New Client, ID: {0}, Name: {1}, Count: {2}", client.uID, client.usrName, clientList.Count));
             }
         }
     }

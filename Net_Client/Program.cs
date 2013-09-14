@@ -18,7 +18,7 @@ namespace Net_Client
             Console.SetWindowSize(Console.BufferWidth, Console.BufferHeight);
 
             Console.WriteLine(" Close this application with the \"!exit\" command!");
-            client.createClient(IPAddress.Loopback, PORT_NUMBER);
+            client.createClient(PORT_NUMBER);
         }
     }
 }

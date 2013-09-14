@@ -8,6 +8,13 @@ using System.Threading;
 
 namespace Net_Client
 {
+    public struct userData
+    {
+        public int userID;
+        public byte[] usrNet;
+        public bool isCommand;
+    };
+
     class MainClient
     {
         TcpClient mainClient = default(TcpClient);
@@ -16,12 +23,18 @@ namespace Net_Client
         string[] mBuffer = new string[18];
         Encoding encoding = Encoding.GetEncoding("windows-1250");
 
-        public void createClient(IPAddress serverAddress, short portNumber)
+        userData usrData = new userData();
+
+        public void createClient(short portNumber)
         {
+            ClientInit init = new ClientInit();
+            init.newClientInit();
+
             mainClient = new TcpClient();
-            mainClient.Connect(serverAddress, portNumber);
+            mainClient.Connect(init.hostAddr , portNumber);
 
             NetworkStream nStream = mainClient.GetStream();
+            usrData.userID = init.serverHandshake(nStream, encoding);
 
             mThread = new Thread(messageThread);
             mThread.Start(nStream);
@@ -37,7 +50,7 @@ namespace Net_Client
                 nStream.Write(buffer, 0, message.Length);
                 nStream.Flush();
 
-                updateMessages(string.Format("me> {0}", message));
+                updateMessages(string.Format("me: {0}", message));
                 message = "";
 
                 clearConsoleLines(1, 21);
